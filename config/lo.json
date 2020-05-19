@@ -1,0 +1,147 @@
+{
+  "google_services": {
+    "client_id": "",
+    "project_id": "",
+    "client_secret": "",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "redirect_uris": ["http://localhost:3000"],
+    "javascript_origins": ["http://localhost:3000"]
+  },
+  "parsers": [
+    {
+      "id": "eden",
+      "filter": "from:mensajerofw@edensa.com.ar has:attachment",
+      "target": "body",
+      "format": "xml",
+      "fields": [
+        {
+          "name": "dueDate",
+          "paths": ["//td[contains(text(),'Fecha de Vencimiento')]/following-sibling::td[text()]/text()"]
+        },
+        {
+          "name": "amount",
+          "paths": ["(//td[contains(text(),'Importe')])[1]/following-sibling::td[text()]/text()"],
+          "transform": {
+            "replace": [
+              { "var": ["value"] },
+              [
+                ["\\$", ""],
+                ["\\.", ""],
+                [",", "."]
+              ]
+            ]
+          }
+        },
+        {
+          "name": "nis",
+          "paths": ["substring(//*[contains(text(), 'NIS')]/text(),19)"]
+        }
+      ]
+    },
+    {
+      "id": "arba",
+      "filter": "from:boletaelectronica@arba.gov.ar \"BOLETA ELECTRONICA - VENCIMIENTO\"",
+      "target": "body",
+      "format": "xml",
+      "fields": [
+        {
+          "name": "dueDate",
+          "paths": [
+            "substring-after(substring-before((//strong)[4],'vence'),'el ')", 
+            "substring-before((//strong)[4],'vence')"
+          ],
+          "transform" : {
+            "replace": [
+              { "var": ["value"] },
+              [
+                ["enero","01"],
+                ["febrero","02"],
+                ["marzo","03"],
+                ["abril","04"],
+                ["mayo","05"],
+                ["junio","06"],
+                ["julio","07"],
+                ["agosto","08"],
+                ["septiembre","09"],
+                ["ocubre","10"],
+                ["noviembre","11"],
+                ["diciembre", "12"],
+                [".de.", "/"],
+                ["[^0-9]* ", ""]
+              ]
+            ]
+          }
+        },
+        {
+          "name": "amount",
+          "paths": ["//td[contains(text(),'Cuota')]/following-sibling::td/text()"],
+          "transform": {
+            "replace": [
+              { "var": ["value"] },
+              [
+                ["\\.", ""],
+                [",", "."]
+              ]
+            ]
+          }
+        },
+        {
+          "name": "tax",
+          "paths": ["(//strong)[3]/text()"]
+        }
+      ]
+    },
+    {
+      "id": "gobiernoJunin",
+      "filter": "from:tramitesonline@junin.gob.ar \"Boleta Digital\" has:attachment",
+      "target": "attachment/pdf",
+      "format": "json",
+      "fields": [
+        {
+          "name": "dueDate",
+          "paths": ["$.pages[0].content[?(@.y > 460 && @.y < 463 && @.x > 324 && @.x < 326)].str"]
+        },
+        {
+          "name": "amount",
+          "paths": ["$.pages[0].content[?(@.y > 460 && @.y < 463 && @.x > 389 && @.x < 391)].str"],
+          "transform": {
+            "replace": [{ "var": ["value"] }, [[",", "."]]]
+          }
+        },
+        {
+          "name": "tax",
+          "paths": ["$.pages[0].content[?(@.x > 210 && @.x < 215)].str"]
+        },
+        {
+          "name": "targetNumber",
+          "paths": ["$.pages[0].content[?(@.x > 320 && @.x < 321 && @.y > 109 && @.y < 111)].str"]
+        }
+      ]
+    },
+    {
+      "id": "cablevision",
+      "filter": "from:info@e.cablevisionfibertel.com.ar \"Ya podés acceder a tu factura\"",
+      "target": "body",
+      "format": "xml",
+      "fields": [
+        {
+          "name": "dueDate",
+          "paths": [
+            "substring-after(//*[contains(text(),'Fecha de vencimiento')]/text(),'&nbsp;')",
+            "substring-after(//*[contains(text(),'Fecha de vencimiento')]/text(),': ')"
+          ]
+        },
+        {
+          "name": "amount",
+          "paths": ["substring-after(//*[contains(text(),'Tu saldo')],'es: $')"]
+        },
+        {
+          "name": "targetClient",
+          "paths": ["substring-before(substring-after(//*[contains(text(),'Hola')]/text(),'Hola '),'!')"]
+        }
+      ]
+    }
+  ]
+}
