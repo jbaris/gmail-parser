@@ -14,10 +14,12 @@ const parseEmails = async (token, parser) => {
   try {
     const promises = []
     var gmail = google.gmail({ version: 'v1', auth: oauth2Client })
-    const currentYear = new Date().getFullYear()
+    const currentDate = new Date()
+    const currentYear = currentDate.getFullYear() // this year
+    const currentMonth = currentDate.getMonth() // past month
     const listResp = await gmail.users.messages.list({
       userId: 'me',
-      q: parser.filter + ' after:' + currentYear + '/01/01'
+      q: parser.filter + ` after: ${currentYear}/${currentMonth}/01`
     })
     for (const message of listResp.data.messages) {
       const getResp = await gmail.users.messages.get({

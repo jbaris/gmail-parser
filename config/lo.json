@@ -142,6 +142,77 @@
           "paths": ["substring-before(substring-after(//*[contains(text(),'Hola')]/text(),'Hola '),'!')"]
         }
       ]
+    },
+    {
+      "id": "osde",
+      "filter": "from:facturacion@osde.com.ar subject:\"Facturación electrónica de OSDE\"",
+      "target": "body",
+      "format": "xml",
+      "fields": [
+        {
+          "name": "dueDate",
+          "paths": [ "//td[./b[text()='Vencimiento']]/following-sibling::td[1]/text()" ]
+        },
+        {
+          "name": "amount",
+          "paths": ["//td[./b[contains(text(),'Importe')]]/following-sibling::td[1]/text()"],
+          "transform": {
+            "replace": [
+              { "var": ["value"] },
+              [
+                ["\\$ ", ""],
+                ["\\.", ""],
+                [",", "."]
+              ]
+            ]
+          }
+        },
+        {
+          "name": "period",
+          "paths": [
+            "//td[./b[contains(text(),'odo facturado')]]/following-sibling::td[1]/text()"
+          ]
+        },
+        {
+          "name": "membership",
+          "paths": ["//span[contains(text(),'Socio')]/text()"],
+          "transform": {
+            "replace": [
+              { "var": ["value"] },
+              [ ["Socio N° ", ""] ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "telefonica",
+      "filter": "from:(factura.sinpapel@telefonica.com.ar) subject:\"Movistar Hogar Online\"",
+      "target": "body",
+      "format": "xml",
+      "fields": [
+        {
+          "name": "dueDate",
+          "paths": [ "//td[contains(text(), '/')]/text()" ]
+        },
+        {
+          "name": "amount",
+          "paths": ["//td[contains(text(), ',')]/text()"],
+          "transform": {
+            "replace": [
+              { "var": ["value"] },
+              [
+                ["\\.", ""],
+                [",", "."]
+              ]
+            ]
+          }
+        },
+        {
+          "name": "lineNumber",
+          "paths": ["//td[string-length(text())=10 and not(contains(text(), '/')) and not(contains(text(), ','))]/text()"]
+        }
+      ]
     }
   ]
 }
