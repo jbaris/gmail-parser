@@ -21,7 +21,9 @@ const parseEmails = async (token, parser) => {
       userId: 'me',
       q: parser.filter + ` after: ${currentYear}/${currentMonth}/01`
     })
-    for (const message of listResp.data.messages) {
+    console.log(`Parser ${parser.id} resultSizeEstimate = ${listResp.data.resultSizeEstimate}`)
+    const messages = listResp.data.messages || []
+    for (const message of messages) {
       const getResp = await gmail.users.messages.get({
         userId: 'me',
         id: message.id,
@@ -48,6 +50,7 @@ const parseEmails = async (token, parser) => {
     }
     return Promise.all(promises)
   } catch (err) {
+    console.log(err)
     throw new ErrorHandler(500, 'Unexpected error')
   }
 }

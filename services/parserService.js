@@ -16,7 +16,7 @@ const parsers = {
       .toString()
       .trim()
       .replace(/(\r\n|\n|\r)/gm, ' ')
-    entry[field.name] = transformService.transform(value, field.transform)
+    entry[field.name] = transformService.transformValue(value, field.transform)
     console.log(field.name)
   },
   // JSON Parser
@@ -26,7 +26,7 @@ const parsers = {
       result = jp.query(target, path, 1)
       if (result && result.length > 0) break
     }
-    entry[field.name] = transformService.transform(result[0], field.transform)
+    entry[field.name] = transformService.transformValue(result[0], field.transform)
   }
 }
 

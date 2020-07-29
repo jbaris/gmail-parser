@@ -1,0 +1,28 @@
+<html>
+  <head>
+    <style>
+      table {
+        border-collapse: collapse;
+      }
+
+      table, th, td {
+        border: 1px solid black;
+      }
+    </style>
+  </head>
+  <body>
+    {{#results}}
+      <h1>{{parser}}</h1>
+      {{#result}}
+        {{#each this}}
+          {{@key}}={{this}}</br>
+        {{/each}}
+        <table>
+          <tr><td>{{dueDate}}</td></tr>
+          <tr><td>{{decimal amount}}</td></tr>
+        </table>
+        <br/>
+      {{/result}}
+    {{/results}}
+  </body>
+</html>
